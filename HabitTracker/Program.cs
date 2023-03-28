@@ -38,7 +38,8 @@ internal class Program
                 Console.WriteLine("- Type 1 to View All Records.");
                 Console.WriteLine("- Type 2 to Insert Record.");
                 Console.WriteLine("- Type 3 to Delete Record.");
-                Console.WriteLine("- Type 4 to Update Record.\n\n");
+                Console.WriteLine("- Type 4 to Update Record.");
+                Console.WriteLine("- Type 5 to create a new habit.\n\n");
 
                 string commandInput = Console.ReadLine();
 
@@ -61,8 +62,11 @@ internal class Program
                     case "4":
                         Update();
                         break;
+                    case "5":
+                        HabitCreation();
+                        break;
                     default:
-                        Console.WriteLine("\n|---> Invalid Command. Please type a number from 0 to 4 <---|\n");
+                        Console.WriteLine("\n|---> Invalid Command. Please type a number from 0 to 5 <---|\n");
                         break;
                 }
             }
@@ -220,6 +224,53 @@ internal class Program
                 tableCmd.ExecuteNonQuery();
                 connection.Close();
             }
+        }
+
+        static void HabitCreation()
+        {
+            Console.WriteLine("\nPlease enter the name of your new habit or type 0 to get back to the menu\n");
+            string newHabit = Console.ReadLine().ToUpper();
+
+            if (newHabit == "0") GetUserInput();
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+
+                var checkCmd = connection.CreateCommand();
+                checkCmd.CommandText = $"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{newHabit}';)";
+                int checkQuery = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                if (checkQuery == 1)
+                {
+                    Console.WriteLine($"\n|---> This habit already exists ! <---|\n");
+                    connection.Close();
+                    HabitCreation();
+                    GetUserInput();
+                }
+            }
+
+            Console.WriteLine("\nPlease enter the unit of measurement of your new habit or type 0 to get back to the menu\n");
+            string unit = Console.ReadLine();
+
+            if (unit == "0") GetUserInput();
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText = @$"CREATE TABLE IF NOT EXISTS {newHabit} (
+                                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                 Date TEXT,
+                                 {unit} INTEGER)";
+
+                tableCmd.ExecuteNonQuery();
+
+                connection.Close();
+            }
+
+            Console.WriteLine("\nYour new habit has been created !\n");
         }
     }
 }
