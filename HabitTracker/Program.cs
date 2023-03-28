@@ -12,7 +12,7 @@ internal class Program
             connection.Open();
             var tableCmd = connection.CreateCommand();
 
-            tableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS drinking_water (
+            tableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS DRINKING_WATER (
                                  Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                  Date TEXT,
                                  Quantity INTEGER)";
@@ -287,7 +287,7 @@ internal class Program
             {
                 connection.Open();
                 var tableCmd = connection.CreateCommand();
-                tableCmd.CommandText = "SELECT name FROM sqlite_master WHERE type='table'";
+                tableCmd.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name IS NOT 'sqlite_sequence'";
 
                 List<string> tables = new();
 
